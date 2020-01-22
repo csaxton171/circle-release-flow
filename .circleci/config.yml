@@ -1,0 +1,119 @@
+commands:
+  assume-role:
+    parameters:
+      role:
+        type: string
+    steps:
+    - aws-cli/install
+    - aws-cli/configure
+    - run:
+        command: |
+          temp_role=$(aws sts assume-role --role-arn << parameters.role >> --role-session-name "circle-assumed")
+          echo "export AWS_ACCESS_KEY_ID=$(echo $temp_role | jq .Credentials.AccessKeyId -r)" >> $BASH_ENV
+          echo "export AWS_SECRET_ACCESS_KEY=$(echo $temp_role | jq .Credentials.SecretAccessKey -r)" >> $BASH_ENV
+          echo "export AWS_SESSION_TOKEN=$(echo $temp_role | jq .Credentials.SessionToken -r)" >> $BASH_ENV
+        name: Assuming Role
+  install-dependencies:
+    description: Install Dependencies
+    steps:
+    - run:
+        command: yarn install --frozen-lockfile
+        name: Install Dependencies
+  restore-yarn:
+    description: Restore Yarn Package Cache
+    steps:
+    - restore_cache:
+        key: << pipeline.parameters.yarn-cache-version >>-yarn-packages-{{ checksum
+          "yarn.lock" }}
+  save-yarn:
+    description: Save Yarn Package Cache
+    steps:
+    - save_cache:
+        key: << pipeline.parameters.yarn-cache-version >>-yarn-packages-{{ checksum
+          "yarn.lock" }}
+        paths:
+        - ~/.cache/yarn
+executors:
+  node:
+    docker:
+    - image: circleci/node:12.14.0
+  terraform:
+    docker:
+    - image: nukengprodservice/aws-cli
+filter-develop-only:
+  filters:
+    branches:
+      only: develop
+filter-master-only:
+  filters:
+    branches:
+      only: master
+jobs:
+  node-setup:
+    executor: node
+    steps:
+    - checkout
+    - restore-yarn
+    - install-dependencies
+    - save-yarn
+    - persist_to_workspace:
+        paths:
+        - ./
+        root: ./
+  node-test:
+    executor: node
+    steps:
+    - attach_workspace:
+        at: ./
+    - run:
+        command: yarn test:ci
+        name: run tests
+  node-validate:
+    executor: node
+    steps:
+    - attach_workspace:
+        at: ./
+    - run:
+        command: yarn fmt:diff
+        name: assert code formatting standards
+    - run:
+        command: yarn audit --level moderate
+        name: audit solution dependency security issues
+  pre-release:
+    executor: node
+    steps:
+    - attach_workspace:
+        at: ./
+    - run:
+        command: echo "execute pre-release actions here"
+        name: execute pre-release actions
+orbs:
+  aws-cli: circleci/aws-cli@0.1.15
+  jq: circleci/jq@1.9.0
+parameters:
+  yarn-cache-version:
+    default: v1
+    type: string
+version: 2.1
+workflows:
+  deploy-prod-ci-workflow:
+    jobs:
+    - hold:
+        filters:
+          branches:
+            only: master
+        type: approval
+    - pre-release:
+        requires:
+        - hold
+    - node-setup:
+        requires:
+        - pre-release
+  validate-branch-workflow:
+    jobs:
+    - node-setup
+    - node-validate:
+        requires:
+        - node-setup
+  version: 2.1
+

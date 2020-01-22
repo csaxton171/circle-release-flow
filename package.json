@@ -6,6 +6,7 @@
   "author": "Craig Saxton <craig.saxton@news.co.uk>",
   "license": "MIT",
   "scripts": {
+    "preinstall": "git config core.hooksPath .git-hooks",
     "test": "jest --config ./jest.config.js",
     "prettier": "echo $(prettier --version) && prettier \"{__tests__,src,scripts}/**/*.{json,ts}\" \"./*.{json,md,yml}\"",
     "fmt:diff": "yarn prettier --list-different",

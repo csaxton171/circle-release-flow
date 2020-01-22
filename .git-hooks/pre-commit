@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -e
+
+if [[ ! -z $(command -v circleci) ]]; then
+    if [[ ! -z $(git status -s .circleci) ]]; then
+        circleci config pack .circleci > .circleci/config.yml
+        circleci config validate .circleci/config.yml
+        git add .circleci/config.yml
+    fi
+fi
