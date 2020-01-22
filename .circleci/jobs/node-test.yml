@@ -1,0 +1,7 @@
+executor: node
+steps:
+  - attach_workspace:
+      at: ./
+  - run:
+      name: run tests
+      command: yarn test:ci

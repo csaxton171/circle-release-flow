@@ -1,0 +1,10 @@
+executor: node
+steps:
+  - checkout
+  - restore-yarn
+  - install-dependencies
+  - save-yarn
+  - persist_to_workspace:
+      root: ./
+      paths:
+        - ./

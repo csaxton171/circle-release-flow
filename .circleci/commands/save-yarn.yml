@@ -1,0 +1,6 @@
+description: "Save Yarn Package Cache"
+steps:
+  - save_cache:
+      key: << pipeline.parameters.yarn-cache-version >>-yarn-packages-{{ checksum "yarn.lock" }}
+      paths:
+        - ~/.cache/yarn

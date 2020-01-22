@@ -1,0 +1,7 @@
+executor: node
+steps:
+  - attach_workspace:
+      at: ./
+  - run:
+      name: execute pre-release actions
+      command: echo "execute pre-release actions here"
