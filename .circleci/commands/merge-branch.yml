@@ -6,7 +6,7 @@ parameters:
     type: string
   tag:
     type: string
-    default: "v${RELEASE_VERSION}"
+    default: "${RELEASE_VERSION}"
 steps:
   - run:
       name: merge to '<< parameters.base_branch >>'
@@ -19,7 +19,7 @@ steps:
         git merge \
             --no-verify \
             --no-ff \
-            -m "chore(release): << parameters.tag >>" \
+            -m "chore(release): merge << parameters.tag >>" \
             "<< parameters.merge_branch >>"
 
         git push

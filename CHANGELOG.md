@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 1.2.0 (2020-01-23)
+
+
+### Features
+
+* add doMoreThings ([#3](https://github.com/csaxton171/circle-release-flow/issues/3)) ([bf6f3a9](https://github.com/csaxton171/circle-release-flow/commit/bf6f3a98a0c0d3df1e7e94326746fd3460745402))
+* enhance ci merge commit message ([#5](https://github.com/csaxton171/circle-release-flow/issues/5)) ([cc9c9ff](https://github.com/csaxton171/circle-release-flow/commit/cc9c9ffe614bb52f3377974fedf42354eda38663))
+
+
+### Bug Fixes
+
+* validation error on CHANGELOG.md update ([#4](https://github.com/csaxton171/circle-release-flow/issues/4)) ([b645dbb](https://github.com/csaxton171/circle-release-flow/commit/b645dbb273148889ab842a1133bd67a950bd47ea))
+
 ## 1.1.0 (2020-01-23)
 
 
