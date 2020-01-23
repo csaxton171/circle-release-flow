@@ -34,6 +34,31 @@ workflows:
           requires:
             - node-setup
 
+  release-workflow:
+    jobs:
+      - hold-release:
+          type: approval
+          filters:
+            branches:
+              only: develop
+
+      - node-setup:
+          requires:
+            - hold-release
+
+      - release-create:
+          requires:
+            - node-setup
+
+      - hold-release-review:
+          type: approval
+          requires:
+            - release-create
+
+      - release-promote:
+          requires:
+            - hold-release-review
+
   deploy-prod-ci-workflow:
     jobs:
       - hold:

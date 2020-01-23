@@ -1,0 +1,40 @@
+executor: node
+parameters:
+  source_branch:
+    type: string
+    default: "develop"
+  release_name:
+    type: string
+    default: ""
+
+steps:
+  - attach_workspace:
+      at: ./
+
+  - set-git-identity
+
+  - run:
+      name: establish release branch
+      command: |
+        release_name=$([[ -z "<< parameters.release_name >>" ]] && echo "release/$(date +%Y.%m.%d.%H%M)" || echo "release/<< parameters.release_name >>")
+        echo "export RELEASE_BRANCH_NAME=$release_name" >> $BASH_ENV
+        git checkout -B "$release_name" "<< parameters.source_branch >>"
+  - run:
+      name: bump version and document
+      command: |
+        git branch
+        git checkout ${RELEASE_BRANCH_NAME}
+        yarn release
+
+  - run:
+      name: publish release
+      command: |
+        git push -u origin ${RELEASE_BRANCH_NAME}
+
+        echo ${RELEASE_BRANCH_NAME} > ./RELEASE_BRANCH_NAME
+        echo $(cat package.json | jq .version -r) > ./RELEASE_VERSION
+
+  - persist_to_workspace:
+      root: ./
+      paths:
+        - RELEASE_*

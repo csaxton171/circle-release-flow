@@ -19,6 +19,32 @@ commands:
     - run:
         command: yarn install --frozen-lockfile
         name: Install Dependencies
+  merge-branch:
+    description: merge branch
+    parameters:
+      base_branch:
+        type: string
+      merge_branch:
+        type: string
+      tag:
+        default: v${RELEASE_VERSION}
+        type: string
+    steps:
+    - run:
+        command: |
+          echo "merging << parameters.merge_branch >> into '<< parameters.base_branch >>'"
+          git fetch --all
+          git checkout "<< parameters.merge_branch >>" && git pull
+          git checkout "<< parameters.base_branch >>" && git pull
+
+          git merge \
+              --no-verify \
+              --no-ff \
+              -m "chore(release): << parameters.tag >>" \
+              "<< parameters.merge_branch >>"
+
+          git push
+        name: merge to '<< parameters.base_branch >>'
   restore-yarn:
     description: Restore Yarn Package Cache
     steps:
@@ -33,6 +59,28 @@ commands:
           "yarn.lock" }}
         paths:
         - ~/.cache/yarn
+  set-git-identity:
+    parameters:
+      email:
+        default: automation@news.co.uk
+        type: string
+      fingerprint:
+        default: 28:47:ff:1c:eb:a1:30:45:41:88:4c:6f:9d:43:ae:80
+        type: string
+      username:
+        default: automation
+        type: string
+    steps:
+    - add_ssh_keys:
+        fingerprints:
+        - << parameters.fingerprint >>
+    - run:
+        command: |
+          git config --global user.email "<< parameters.email >>"
+          git config --global user.name "<< parameters.username >>"
+          mkdir -p ~/.ssh \
+            && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+        name: set git user identity
 executors:
   node:
     docker:
@@ -95,6 +143,72 @@ jobs:
     - run:
         command: echo "execute pre-release actions here"
         name: execute pre-release actions
+  release-create:
+    executor: node
+    parameters:
+      release_name:
+        default: ""
+        type: string
+      source_branch:
+        default: develop
+        type: string
+    steps:
+    - attach_workspace:
+        at: ./
+    - set-git-identity
+    - run:
+        command: |
+          release_name=$([[ -z "<< parameters.release_name >>" ]] && echo "release/$(date +%Y.%m.%d.%H%M)" || echo "release/<< parameters.release_name >>")
+          echo "export RELEASE_BRANCH_NAME=$release_name" >> $BASH_ENV
+          git checkout -B "$release_name" "<< parameters.source_branch >>"
+        name: establish release branch
+    - run:
+        command: |
+          git branch
+          git checkout ${RELEASE_BRANCH_NAME}
+          yarn release
+        name: bump version and document
+    - run:
+        command: |
+          git push -u origin ${RELEASE_BRANCH_NAME}
+
+          echo ${RELEASE_BRANCH_NAME} > ./RELEASE_BRANCH_NAME
+          echo $(cat package.json | jq .version -r) > ./RELEASE_VERSION
+        name: publish release
+    - persist_to_workspace:
+        paths:
+        - RELEASE_*
+        root: ./
+  release-promote:
+    executor: node
+    parameters:
+      production_branch:
+        default: master
+        type: string
+    steps:
+    - attach_workspace:
+        at: ./
+    - set-git-identity
+    - run:
+        command: |
+          echo "export RELEASE_BRANCH_NAME=$(cat ./RELEASE_BRANCH_NAME)" >> $BASH_ENV
+          echo "export RELEASE_VERSION=$(cat ./RELEASE_VERSION)" >> $BASH_ENV
+        name: set release info
+    - merge-branch:
+        base_branch: develop
+        merge_branch: $RELEASE_BRANCH_NAME
+    - merge-branch:
+        base_branch: master
+        merge_branch: $RELEASE_BRANCH_NAME
+    - run:
+        command: "git fetch --all \ngit checkout master\n\nif [[ -z $(git tag -l \"v${RELEASE_VERSION}\")
+          ]]; then\n  git tag \"v${RELEASE_VERSION}\"\n  git push --tags\nfi\n"
+        name: tag release
+    - run:
+        command: |
+          git branch -D "$RELEASE_BRANCH_NAME"
+          git push origin --delete "$RELEASE_BRANCH_NAME"
+        name: remove release branch
 orbs:
   aws-cli: circleci/aws-cli@0.1.15
   jq: circleci/jq@1.9.0
@@ -117,6 +231,26 @@ workflows:
     - node-setup:
         requires:
         - pre-release
+  release-workflow:
+    jobs:
+    - hold-release:
+        filters:
+          branches:
+            only: develop
+        type: approval
+    - node-setup:
+        requires:
+        - hold-release
+    - release-create:
+        requires:
+        - node-setup
+    - hold-release-review:
+        requires:
+        - release-create
+        type: approval
+    - release-promote:
+        requires:
+        - hold-release-review
   validate-branch-workflow:
     jobs:
     - node-setup
