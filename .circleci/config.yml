@@ -66,8 +66,16 @@ jobs:
     - attach_workspace:
         at: ./
     - run:
-        command: yarn test:ci
+        command: |
+          yarn test \
+              --coverage \
+              --reporters="default" \
+              --reporters="jest-junit"
         name: run tests
+    - store_test_results:
+        path: ./junit.xml
+    - store_artifacts:
+        path: ./coverage
   node-validate:
     executor: node
     steps:
@@ -113,6 +121,9 @@ workflows:
     jobs:
     - node-setup
     - node-validate:
+        requires:
+        - node-setup
+    - node-test:
         requires:
         - node-setup
   version: 2.1

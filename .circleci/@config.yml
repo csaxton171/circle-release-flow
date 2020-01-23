@@ -30,6 +30,10 @@ workflows:
           requires:
             - node-setup
 
+      - node-test:
+          requires:
+            - node-setup
+
   deploy-prod-ci-workflow:
     jobs:
       - hold:
