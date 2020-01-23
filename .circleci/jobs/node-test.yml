@@ -1,0 +1,16 @@
+executor: node
+steps:
+  - attach_workspace:
+      at: ./
+  - run:
+      name: run tests
+      command: |
+        yarn test \
+            --coverage \
+            --reporters="default" \
+            --reporters="jest-junit"
+
+  - store_test_results:
+      path: ./junit.xml
+  - store_artifacts:
+      path: ./coverage

@@ -1,0 +1,8 @@
+executors:
+  node:
+    docker:
+      - image: circleci/node:12.14.0
+
+  terraform:
+    docker:
+      - image: nukengprodservice/aws-cli

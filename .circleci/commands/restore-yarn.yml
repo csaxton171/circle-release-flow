@@ -1,0 +1,4 @@
+description: "Restore Yarn Package Cache"
+steps:
+  - restore_cache:
+      key: << pipeline.parameters.yarn-cache-version >>-yarn-packages-{{ checksum "yarn.lock" }}

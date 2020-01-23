@@ -1,0 +1,76 @@
+version: 2.1
+
+parameters:
+  yarn-cache-version:
+    type: string
+    default: "v1"
+
+orbs:
+  aws-cli: circleci/aws-cli@0.1.15
+  jq: circleci/jq@1.9.0
+
+filter-develop-only: &filter-develop-only
+  filters:
+    branches:
+      only: develop
+
+filter-master-only: &filter-master-only
+  filters:
+    branches:
+      only: master
+
+workflows:
+  version: 2.1
+
+  validate-branch-workflow:
+    jobs:
+      - node-setup
+
+      - node-validate:
+          requires:
+            - node-setup
+
+      - node-test:
+          requires:
+            - node-setup
+
+  release-workflow:
+    jobs:
+      - hold-release:
+          type: approval
+          filters:
+            branches:
+              only: develop
+
+      - node-setup:
+          requires:
+            - hold-release
+
+      - release-create:
+          requires:
+            - node-setup
+
+      - hold-release-review:
+          type: approval
+          requires:
+            - release-create
+
+      - release-promote:
+          requires:
+            - hold-release-review
+
+  deploy-prod-ci-workflow:
+    jobs:
+      - hold:
+          type: approval
+          <<: *filter-master-only
+
+      - pre-release:
+          # TODO uncomment context when ready to go live
+          # <<: *context-admin
+          requires:
+            - hold
+
+      - node-setup:
+          requires:
+            - pre-release

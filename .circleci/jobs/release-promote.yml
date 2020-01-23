@@ -1,0 +1,42 @@
+executor: node
+parameters:
+  production_branch:
+    type: string
+    default: "master"
+
+steps:
+  - attach_workspace:
+      at: ./
+
+  - set-git-identity
+
+  - run:
+      name: set release info
+      command: |
+        echo "export RELEASE_BRANCH_NAME=$(cat ./RELEASE_BRANCH_NAME)" >> $BASH_ENV
+        echo "export RELEASE_VERSION=$(cat ./RELEASE_VERSION)" >> $BASH_ENV
+
+  - merge-branch:
+      base_branch: "develop"
+      merge_branch: "$RELEASE_BRANCH_NAME"
+
+  - merge-branch:
+      base_branch: "master"
+      merge_branch: "$RELEASE_BRANCH_NAME"
+
+  - run:
+      name: tag release
+      command: |
+        git fetch --all 
+        git checkout master
+
+        if [[ -z $(git tag -l "v${RELEASE_VERSION}") ]]; then
+          git tag "v${RELEASE_VERSION}"
+          git push --tags
+        fi
+
+  - run:
+      name: remove release branch
+      command: |
+        git branch -D "$RELEASE_BRANCH_NAME"
+        git push origin --delete "$RELEASE_BRANCH_NAME"
