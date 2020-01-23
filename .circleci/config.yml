@@ -27,7 +27,7 @@ commands:
       merge_branch:
         type: string
       tag:
-        default: v${RELEASE_VERSION}
+        default: ${RELEASE_VERSION}
         type: string
     steps:
     - run:
@@ -40,7 +40,7 @@ commands:
           git merge \
               --no-verify \
               --no-ff \
-              -m "chore(release): << parameters.tag >>" \
+              -m "chore(release): merge << parameters.tag >>" \
               "<< parameters.merge_branch >>"
 
           git push
