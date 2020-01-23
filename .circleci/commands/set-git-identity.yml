@@ -1,0 +1,22 @@
+parameters:
+  username:
+    type: string
+    default: "automation"
+  email:
+    type: string
+    default: "automation@news.co.uk"
+  fingerprint:
+    type: string
+    default: "28:47:ff:1c:eb:a1:30:45:41:88:4c:6f:9d:43:ae:80"
+
+steps:
+  - add_ssh_keys:
+      fingerprints:
+        - "<< parameters.fingerprint >>"
+  - run:
+      name: set git user identity
+      command: |
+        git config --global user.email "<< parameters.email >>"
+        git config --global user.name "<< parameters.username >>"
+        mkdir -p ~/.ssh \
+          && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config

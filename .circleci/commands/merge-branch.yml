@@ -1,0 +1,23 @@
+description: merge branch
+parameters:
+  base_branch:
+    type: string
+  merge_branch:
+    type: string
+  tag:
+    type: string
+    default: "v${RELEASE_VERSION}"
+steps:
+  - run:
+      name: merge to '<< parameters.base_branch >>'
+      command: |
+        echo "merging << parameters.merge_branch >> into '<< parameters.base_branch >>'"
+        git fetch --all
+        git checkout "<< parameters.merge_branch >>" && git pull
+        git checkout "<< parameters.base_branch >>" && git pull
+
+        git merge \
+            --no-verify \
+            --no-ff \
+            -m "chore(release): << parameters.tag >>" \
+            "<< parameters.merge_branch >>"
