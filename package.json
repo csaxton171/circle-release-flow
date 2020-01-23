@@ -10,7 +10,8 @@
     "test": "jest --config ./jest.config.js",
     "prettier": "echo $(prettier --version) && prettier \"{__tests__,src,scripts,.circleci}/**/*.{json,ts}\" \"./*.{json,md,yml}\"",
     "fmt:diff": "yarn prettier --list-different",
-    "fmt": "yarn prettier --write"
+    "fmt": "yarn prettier --write",
+    "release": "standard-version"
   },
   "devDependencies": {
     "@types/jest": "^24.9.0",
@@ -18,6 +19,7 @@
     "jest": "^25.1.0",
     "jest-junit": "^10.0.0",
     "prettier": "^1.19.1",
+    "standard-version": "^7.1.0",
     "ts-jest": "^24.3.0",
     "ts-node": "^8.6.2",
     "typescript": "^3.7.5"
