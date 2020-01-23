@@ -42,6 +42,8 @@ commands:
               --no-ff \
               -m "chore(release): << parameters.tag >>" \
               "<< parameters.merge_branch >>"
+
+          git push
         name: merge to '<< parameters.base_branch >>'
   restore-yarn:
     description: Restore Yarn Package Cache
@@ -202,6 +204,11 @@ jobs:
         command: "git fetch --all \ngit checkout master\n\nif [[ -z $(git tag -l \"v${RELEASE_VERSION}\")
           ]]; then\n  git tag \"v${RELEASE_VERSION}\"\n  git push --tags\nfi\n"
         name: tag release
+    - run:
+        command: |
+          git branch -D "$RELEASE_BRANCH_NAME"
+          git push origin --delete "$RELEASE_BRANCH_NAME"
+        name: remove release branch
 orbs:
   aws-cli: circleci/aws-cli@0.1.15
   jq: circleci/jq@1.9.0

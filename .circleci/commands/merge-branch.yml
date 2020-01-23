@@ -21,3 +21,5 @@ steps:
             --no-ff \
             -m "chore(release): << parameters.tag >>" \
             "<< parameters.merge_branch >>"
+
+        git push

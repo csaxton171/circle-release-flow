@@ -34,3 +34,9 @@ steps:
           git tag "v${RELEASE_VERSION}"
           git push --tags
         fi
+
+  - run:
+      name: remove release branch
+      command: |
+        git branch -D "$RELEASE_BRANCH_NAME"
+        git push origin --delete "$RELEASE_BRANCH_NAME"
