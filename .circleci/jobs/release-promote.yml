@@ -8,7 +8,7 @@ steps:
   - attach_workspace:
       at: ./
 
-  - set-git-identity
+  - git-set-identity
 
   - run:
       name: set release info
@@ -16,11 +16,11 @@ steps:
         echo "export RELEASE_BRANCH_NAME=$(cat ./RELEASE_BRANCH_NAME)" >> $BASH_ENV
         echo "export RELEASE_VERSION=$(cat ./RELEASE_VERSION)" >> $BASH_ENV
 
-  - merge-branch:
+  - git-merge-branch:
       base_branch: "develop"
       merge_branch: "$RELEASE_BRANCH_NAME"
 
-  - merge-branch:
+  - git-merge-branch:
       base_branch: "master"
       merge_branch: "$RELEASE_BRANCH_NAME"
 
