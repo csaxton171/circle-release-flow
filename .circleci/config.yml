@@ -13,14 +13,8 @@ commands:
           echo "export AWS_SECRET_ACCESS_KEY=$(echo $temp_role | jq .Credentials.SecretAccessKey -r)" >> $BASH_ENV
           echo "export AWS_SESSION_TOKEN=$(echo $temp_role | jq .Credentials.SessionToken -r)" >> $BASH_ENV
         name: Assuming Role
-  install-dependencies:
-    description: Install Dependencies
-    steps:
-    - run:
-        command: yarn install --frozen-lockfile
-        name: Install Dependencies
-  merge-branch:
-    description: merge branch
+  git-merge-branch:
+    description: merge merge_branch into base_branch
     parameters:
       base_branch:
         type: string
@@ -29,6 +23,9 @@ commands:
       tag:
         default: ${RELEASE_VERSION}
         type: string
+      trigger_ci:
+        default: true
+        type: boolean
     steps:
     - run:
         command: |
@@ -37,29 +34,21 @@ commands:
           git checkout "<< parameters.merge_branch >>" && git pull
           git checkout "<< parameters.base_branch >>" && git pull
 
+          case << parameters.trigger_ci >> in
+            false) trigger="[ci skip]";;
+            *) trigger="";;
+          esac
+
           git merge \
               --no-verify \
               --no-ff \
               -m "chore(release): merge << parameters.tag >>" \
+              -m "$trigger" \
               "<< parameters.merge_branch >>"
 
           git push
         name: merge to '<< parameters.base_branch >>'
-  restore-yarn:
-    description: Restore Yarn Package Cache
-    steps:
-    - restore_cache:
-        key: << pipeline.parameters.yarn-cache-version >>-yarn-packages-{{ checksum
-          "yarn.lock" }}
-  save-yarn:
-    description: Save Yarn Package Cache
-    steps:
-    - save_cache:
-        key: << pipeline.parameters.yarn-cache-version >>-yarn-packages-{{ checksum
-          "yarn.lock" }}
-        paths:
-        - ~/.cache/yarn
-  set-git-identity:
+  git-set-identity:
     parameters:
       email:
         default: automation@news.co.uk
@@ -81,6 +70,26 @@ commands:
           mkdir -p ~/.ssh \
             && echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
         name: set git user identity
+  install-dependencies:
+    description: Install Dependencies
+    steps:
+    - run:
+        command: yarn install --frozen-lockfile
+        name: Install Dependencies
+  restore-yarn:
+    description: Restore Yarn Package Cache
+    steps:
+    - restore_cache:
+        key: << pipeline.parameters.yarn-cache-version >>-yarn-packages-{{ checksum
+          "yarn.lock" }}
+  save-yarn:
+    description: Save Yarn Package Cache
+    steps:
+    - save_cache:
+        key: << pipeline.parameters.yarn-cache-version >>-yarn-packages-{{ checksum
+          "yarn.lock" }}
+        paths:
+        - ~/.cache/yarn
 executors:
   node:
     docker:
@@ -155,7 +164,7 @@ jobs:
     steps:
     - attach_workspace:
         at: ./
-    - set-git-identity
+    - git-set-identity
     - run:
         command: |
           release_name=$([[ -z "<< parameters.release_name >>" ]] && echo "release/$(date +%Y.%m.%d.%H%M)" || echo "release/<< parameters.release_name >>")
@@ -188,16 +197,16 @@ jobs:
     steps:
     - attach_workspace:
         at: ./
-    - set-git-identity
+    - git-set-identity
     - run:
         command: |
           echo "export RELEASE_BRANCH_NAME=$(cat ./RELEASE_BRANCH_NAME)" >> $BASH_ENV
           echo "export RELEASE_VERSION=$(cat ./RELEASE_VERSION)" >> $BASH_ENV
         name: set release info
-    - merge-branch:
+    - git-merge-branch:
         base_branch: develop
         merge_branch: $RELEASE_BRANCH_NAME
-    - merge-branch:
+    - git-merge-branch:
         base_branch: master
         merge_branch: $RELEASE_BRANCH_NAME
     - run:
@@ -209,6 +218,13 @@ jobs:
           git branch -D "$RELEASE_BRANCH_NAME"
           git push origin --delete "$RELEASE_BRANCH_NAME"
         name: remove release branch
+  workaround-approval-skip-bug:
+    executor: node
+    steps:
+    - run:
+        command: echo "a bug in circleci causes a workflow starting with an approval
+          to run regardless of 'ci-skip' directive presence"
+        name: workaround workflow skip/approval bug
 orbs:
   aws-cli: circleci/aws-cli@0.1.15
   jq: circleci/jq@1.9.0
@@ -233,10 +249,13 @@ workflows:
         - pre-release
   release-workflow:
     jobs:
+    - workaround-approval-skip-bug
     - hold-release:
         filters:
           branches:
             only: develop
+        requires:
+        - workaround-approval-skip-bug
         type: approval
     - node-setup:
         requires:

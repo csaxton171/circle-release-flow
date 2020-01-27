@@ -36,8 +36,12 @@ workflows:
 
   release-workflow:
     jobs:
+      - workaround-approval-skip-bug
+
       - hold-release:
           type: approval
+          requires:
+            - workaround-approval-skip-bug
           filters:
             branches:
               only: develop

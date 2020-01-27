@@ -11,7 +11,7 @@ steps:
   - attach_workspace:
       at: ./
 
-  - set-git-identity
+  - git-set-identity
 
   - run:
       name: establish release branch
