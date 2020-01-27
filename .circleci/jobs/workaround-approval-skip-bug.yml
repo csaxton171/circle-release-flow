@@ -1,0 +1,5 @@
+executor: node
+steps:
+  - run:
+      name: "workaround workflow skip/approval bug"
+      command: echo "a bug in circleci causes a workflow starting with an approval to run regardless of 'ci-skip' directive presence"

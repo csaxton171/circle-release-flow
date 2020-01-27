@@ -1,4 +1,4 @@
-description: merge branch
+description: merge merge_branch into base_branch
 parameters:
   base_branch:
     type: string
@@ -7,6 +7,9 @@ parameters:
   tag:
     type: string
     default: "${RELEASE_VERSION}"
+  trigger_ci:
+    type: boolean
+    default: true
 steps:
   - run:
       name: merge to '<< parameters.base_branch >>'
@@ -16,10 +19,16 @@ steps:
         git checkout "<< parameters.merge_branch >>" && git pull
         git checkout "<< parameters.base_branch >>" && git pull
 
+        case << parameters.trigger_ci >> in
+          false) trigger="[ci skip]";;
+          *) trigger="";;
+        esac
+
         git merge \
             --no-verify \
             --no-ff \
             -m "chore(release): merge << parameters.tag >>" \
+            -m "$trigger" \
             "<< parameters.merge_branch >>"
 
         git push
