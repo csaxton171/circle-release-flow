@@ -235,7 +235,7 @@ parameters:
     type: string
 version: 2.1
 workflows:
-  deploy-prod-ci-workflow:
+  deploy-prod-workflow:
     jobs:
     - hold:
         filters:
@@ -245,6 +245,15 @@ workflows:
     - pre-release:
         requires:
         - hold
+    - node-setup:
+        requires:
+        - pre-release
+  deploy-staging-workflow:
+    jobs:
+    - pre-release:
+        filters:
+          branches:
+            only: master
     - node-setup:
         requires:
         - pre-release

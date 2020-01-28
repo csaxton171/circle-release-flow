@@ -63,7 +63,16 @@ workflows:
           requires:
             - hold-release-review
 
-  deploy-prod-ci-workflow:
+  deploy-staging-workflow:
+    jobs:
+      - pre-release:
+          <<: *filter-master-only
+
+      - node-setup:
+          requires:
+            - pre-release
+
+  deploy-prod-workflow:
     jobs:
       - hold:
           type: approval
