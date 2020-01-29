@@ -36,6 +36,7 @@ steps:
         result=$(git merge $merge_args "<< parameters.merge_branch >>" || echo "[merge-failed]")        
         if [[ "$result" =~ \[merge-failed\] ]]; then
           echo $result
+          git status
           git reset --hard
           exit 1
         fi
