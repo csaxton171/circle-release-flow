@@ -32,17 +32,18 @@ commands:
     steps:
     - run:
         command: "echo \"merging << parameters.merge_branch >> into '<< parameters.base_branch
-          >>'\"\n\ngit remote -v\ngit branch -a\n\n\n\ngit fetch --all\ngit checkout
-          \"<< parameters.merge_branch >>\" && git pull\ngit checkout \"<< parameters.base_branch
-          >>\" && git pull\n\ngit branch -a\n\nmerge_args=\"--no-verify --no-ff -m
-          'chore(release): merge << parameters.tag >>'\"\n\ncase << parameters.trigger_ci
-          >> in\n  false) merge_args=\"$merge_args -m '[ci skip]'\";;\nesac\n\ncase
-          << parameters.simulate >> in\n  true) merge_args=\"--no-commit $merge_args\"
-          ;;\nesac\n\necho \"merging - [git merge $merge_args << parameters.merge_branch
-          >>]\"\nresult=$(git merge $merge_args \"<< parameters.merge_branch >>\"
-          || echo \"[merge-failed]\")        \nif [[ \"$result\" =~ \\[merge-failed\\]
-          ]]; then\n  echo $result\n  git status\n  git reset --hard\n  exit 1\nfi\n\ngit
-          push\n"
+          >>'\"\ngit checkout \"<< parameters.merge_branch >>\" && git pull\ngit checkout
+          \"<< parameters.base_branch >>\" && git pull\n\nmerge_msg=\"chore(release):
+          merge << parameters.tag >>\"\nmerge_args=\"--no-verify --no-ff\"\n\ncase
+          << parameters.trigger_ci >> in\n  false)  trigger_ci=\"[ci skip]\" ;;\n
+          \ *) \t    trigger_ci=\"\" ;;\nesac\n\ncase << parameters.simulate >> in\n
+          \ true) merge_args=\"--no-commit $merge_args\" ;;\nesac\n\necho \"merging
+          - [git merge $merge_args -m \\\"$merge_msg\\\" -m \\\"$trigger_ci\\\" <<
+          parameters.merge_branch >>]\"     \nresult=$(git merge $merge_args -m \"$merge_msg\"
+          -m \"$trigger_ci\" << parameters.merge_branch >> || echo \"[merge-failed]\")
+          \       \nif [[ \"$result\" =~ \\[merge-failed\\] ]]; then\n  echo $result\n
+          \ git status\n  git reset --hard\n  exit 1\nfi\n\ncase << parameters.simulate
+          >> in\n  false) git push ;;\nesac\n"
         name: merge to '<< parameters.base_branch >>'
   git-set-identity:
     parameters:

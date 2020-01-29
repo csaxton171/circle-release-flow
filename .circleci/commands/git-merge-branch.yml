@@ -18,30 +18,23 @@ steps:
       name: merge to '<< parameters.base_branch >>'
       command: |
         echo "merging << parameters.merge_branch >> into '<< parameters.base_branch >>'"
-
-        git remote -v
-        git branch -a
-
-
-
-        git fetch --all
         git checkout "<< parameters.merge_branch >>" && git pull
         git checkout "<< parameters.base_branch >>" && git pull
 
-        git branch -a
-
-        merge_args="--no-verify --no-ff -m 'chore(release): merge << parameters.tag >>'"
+        merge_msg="chore(release): merge << parameters.tag >>"
+        merge_args="--no-verify --no-ff"
 
         case << parameters.trigger_ci >> in
-          false) merge_args="$merge_args -m '[ci skip]'";;
+          false)  trigger_ci="[ci skip]" ;;
+          *) 	    trigger_ci="" ;;
         esac
 
         case << parameters.simulate >> in
           true) merge_args="--no-commit $merge_args" ;;
         esac
 
-        echo "merging - [git merge $merge_args << parameters.merge_branch >>]"
-        result=$(git merge $merge_args "<< parameters.merge_branch >>" || echo "[merge-failed]")        
+        echo "merging - [git merge $merge_args -m \"$merge_msg\" -m \"$trigger_ci\" << parameters.merge_branch >>]"     
+        result=$(git merge $merge_args -m "$merge_msg" -m "$trigger_ci" << parameters.merge_branch >> || echo "[merge-failed]")        
         if [[ "$result" =~ \[merge-failed\] ]]; then
           echo $result
           git status
@@ -49,4 +42,6 @@ steps:
           exit 1
         fi
 
-        git push
+        case << parameters.simulate >> in
+          false) git push ;;
+        esac
