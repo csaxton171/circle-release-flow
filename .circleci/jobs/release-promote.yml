@@ -19,6 +19,16 @@ steps:
   - git-merge-branch:
       base_branch: "develop"
       merge_branch: "$RELEASE_BRANCH_NAME"
+      simulate: true
+
+  - git-merge-branch:
+      base_branch: "master"
+      merge_branch: "$RELEASE_BRANCH_NAME"
+      simulate: true
+
+  - git-merge-branch:
+      base_branch: "develop"
+      merge_branch: "$RELEASE_BRANCH_NAME"
       trigger_ci: false
 
   - git-merge-branch:
