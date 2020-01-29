@@ -38,7 +38,8 @@ commands:
               --simulate=<< parameters.simulate >> \
               --trigger=<< parameters.trigger_ci >> \
               --tag=<< parameters.tag >>
-        name: merge to '<< parameters.base_branch >>'
+        name: merge to '<< parameters.base_branch >> [simulate=<< parameters.simulate
+          >>]'
   git-set-identity:
     parameters:
       email:
