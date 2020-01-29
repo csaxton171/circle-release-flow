@@ -37,8 +37,9 @@ commands:
           --no-ff -m 'chore(release): merge << parameters.tag >>'\"\n\ncase << parameters.trigger_ci
           >> in\n  false) merge_args=\"$merge_args -m '[ci skip]'\";;\nesac\n\ncase
           << parameters.simulate >> in\n  true) merge_args=\"--no-commit $merge_args\"
-          ;;\nesac\n\nresult=$(git merge $merge_args \"<< parameters.merge_branch
-          >>\" || echo \"[merge-failed]\")        \nif [[ \"$result\" =~ \\[merge-failed\\]
+          ;;\nesac\n\necho \"merging - [git merge $merge_args << parameters.merge_branch
+          >>]\"\nresult=$(git merge $merge_args \"<< parameters.merge_branch >>\"
+          || echo \"[merge-failed]\")        \nif [[ \"$result\" =~ \\[merge-failed\\]
           ]]; then\n  echo $result\n  git reset --hard\n  exit 1\nfi\n\ngit push\n"
         name: merge to '<< parameters.base_branch >>'
   git-set-identity:
