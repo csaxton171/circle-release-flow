@@ -17,7 +17,7 @@ steps:
   - run:
       name: merge to '<< parameters.base_branch >>'
       command: |
-        ../scripts/ci-merge-branch.sh \
+        ./scripts/ci-merge-branch.sh \
             --base=<< parameters.base_branch >> \
             --merge=<< parameters.merge_branch >> \
             --simulate=<< parameters.simulate >> \

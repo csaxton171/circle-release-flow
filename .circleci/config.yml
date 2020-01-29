@@ -32,7 +32,7 @@ commands:
     steps:
     - run:
         command: |
-          ../scripts/ci-merge-branch.sh \
+          ./scripts/ci-merge-branch.sh \
               --base=<< parameters.base_branch >> \
               --merge=<< parameters.merge_branch >> \
               --simulate=<< parameters.simulate >> \
