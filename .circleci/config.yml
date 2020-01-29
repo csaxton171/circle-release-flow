@@ -31,19 +31,13 @@ commands:
         type: boolean
     steps:
     - run:
-        command: "echo \"merging << parameters.merge_branch >> into '<< parameters.base_branch
-          >>'\"\ngit checkout \"<< parameters.merge_branch >>\" && git pull\ngit checkout
-          \"<< parameters.base_branch >>\" && git pull\n\nmerge_msg=\"chore(release):
-          merge << parameters.tag >>\"\nmerge_args=\"--no-verify --no-ff\"\n\ncase
-          << parameters.trigger_ci >> in\n  false)  trigger_ci=\"[ci skip]\" ;;\n
-          \ *) \t    trigger_ci=\"\" ;;\nesac\n\ncase << parameters.simulate >> in\n
-          \ true) merge_args=\"--no-commit $merge_args\" ;;\nesac\n\necho \"merging
-          - [git merge $merge_args -m \\\"$merge_msg\\\" -m \\\"$trigger_ci\\\" <<
-          parameters.merge_branch >>]\"     \nresult=$(git merge $merge_args -m \"$merge_msg\"
-          -m \"$trigger_ci\" << parameters.merge_branch >> || echo \"[merge-failed]\")
-          \       \nif [[ \"$result\" =~ \\[merge-failed\\] ]]; then\n  echo $result\n
-          \ git status\n  git reset --hard\n  exit 1\nfi\n\ncase << parameters.simulate
-          >> in\n  false) git push ;;\nesac\n"
+        command: |
+          ../scripts/ci-merge-branch.sh \
+              --base=<< parameters.base_branch >> \
+              --merge=<< parameters.merge_branch >> \
+              --simulate=<< parameters.simulate >> \
+              --trigger=<< parameters.trigger_ci >> \
+              --tag=<< parameters.tag >>
         name: merge to '<< parameters.base_branch >>'
   git-set-identity:
     parameters:

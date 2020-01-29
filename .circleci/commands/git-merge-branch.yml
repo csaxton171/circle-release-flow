@@ -17,31 +17,9 @@ steps:
   - run:
       name: merge to '<< parameters.base_branch >>'
       command: |
-        echo "merging << parameters.merge_branch >> into '<< parameters.base_branch >>'"
-        git checkout "<< parameters.merge_branch >>" && git pull
-        git checkout "<< parameters.base_branch >>" && git pull
-
-        merge_msg="chore(release): merge << parameters.tag >>"
-        merge_args="--no-verify --no-ff"
-
-        case << parameters.trigger_ci >> in
-          false)  trigger_ci="[ci skip]" ;;
-          *) 	    trigger_ci="" ;;
-        esac
-
-        case << parameters.simulate >> in
-          true) merge_args="--no-commit $merge_args" ;;
-        esac
-
-        echo "merging - [git merge $merge_args -m \"$merge_msg\" -m \"$trigger_ci\" << parameters.merge_branch >>]"     
-        result=$(git merge $merge_args -m "$merge_msg" -m "$trigger_ci" << parameters.merge_branch >> || echo "[merge-failed]")        
-        if [[ "$result" =~ \[merge-failed\] ]]; then
-          echo $result
-          git status
-          git reset --hard
-          exit 1
-        fi
-
-        case << parameters.simulate >> in
-          false) git push ;;
-        esac
+        ../scripts/ci-merge-branch.sh \
+            --base=<< parameters.base_branch >> \
+            --merge=<< parameters.merge_branch >> \
+            --simulate=<< parameters.simulate >> \
+            --trigger=<< parameters.trigger_ci >> \
+            --tag=<< parameters.tag >>
