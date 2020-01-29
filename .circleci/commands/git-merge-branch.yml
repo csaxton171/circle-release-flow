@@ -18,9 +18,17 @@ steps:
       name: merge to '<< parameters.base_branch >>'
       command: |
         echo "merging << parameters.merge_branch >> into '<< parameters.base_branch >>'"
+
+        git remote -v
+        git branch -a
+
+
+
         git fetch --all
         git checkout "<< parameters.merge_branch >>" && git pull
         git checkout "<< parameters.base_branch >>" && git pull
+
+        git branch -a
 
         merge_args="--no-verify --no-ff -m 'chore(release): merge << parameters.tag >>'"
 
