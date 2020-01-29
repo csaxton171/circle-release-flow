@@ -28,9 +28,9 @@ steps:
           false) merge_args="$merge_args -m '[ci skip]'";;
         esac
 
-        if << parameters.simulate >> then;
-          merge_args="--no-commit $merge_args"
-        fi
+        case << parameters.simulate >> in
+          true) merge_args="--no-commit $merge_args" ;;
+        esac
 
         result=$(git merge $merge_args "<< parameters.merge_branch >>" || echo "[merge-failed]")        
         if [[ "$result" =~ \[merge-failed\] ]]; then
