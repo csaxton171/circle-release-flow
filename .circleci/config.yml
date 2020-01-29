@@ -40,7 +40,8 @@ commands:
           ;;\nesac\n\necho \"merging - [git merge $merge_args << parameters.merge_branch
           >>]\"\nresult=$(git merge $merge_args \"<< parameters.merge_branch >>\"
           || echo \"[merge-failed]\")        \nif [[ \"$result\" =~ \\[merge-failed\\]
-          ]]; then\n  echo $result\n  git reset --hard\n  exit 1\nfi\n\ngit push\n"
+          ]]; then\n  echo $result\n  git status\n  git reset --hard\n  exit 1\nfi\n\ngit
+          push\n"
         name: merge to '<< parameters.base_branch >>'
   git-set-identity:
     parameters:
