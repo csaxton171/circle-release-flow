@@ -32,6 +32,7 @@ steps:
           true) merge_args="--no-commit $merge_args" ;;
         esac
 
+        echo "merging - [git merge $merge_args << parameters.merge_branch >>]"
         result=$(git merge $merge_args "<< parameters.merge_branch >>" || echo "[merge-failed]")        
         if [[ "$result" =~ \[merge-failed\] ]]; then
           echo $result
