@@ -10,6 +10,9 @@ parameters:
   trigger_ci:
     type: boolean
     default: true
+  simulate:
+    type: boolean
+    default: false
 steps:
   - run:
       name: merge to '<< parameters.base_branch >>'
@@ -19,16 +22,21 @@ steps:
         git checkout "<< parameters.merge_branch >>" && git pull
         git checkout "<< parameters.base_branch >>" && git pull
 
+        merge_args="--no-verify --no-ff -m 'chore(release): merge << parameters.tag >>'"
+
         case << parameters.trigger_ci >> in
-          false) trigger="[ci skip]";;
-          *) trigger="";;
+          false) merge_args="$merge_args -m '[ci skip]'";;
         esac
 
-        git merge \
-            --no-verify \
-            --no-ff \
-            -m "chore(release): merge << parameters.tag >>" \
-            -m "$trigger" \
-            "<< parameters.merge_branch >>"
+        if << parameters.simulate >> then;
+          merge_args="--no-commit $merge_args"
+        fi
+
+        result=$(git merge $merge_args "<< parameters.merge_branch >>" || echo "[merge-failed]")        
+        if [[ "$result" =~ \[merge-failed\] ]]; then
+          echo $result
+          git reset --hard
+          exit 1
+        fi
 
         git push
