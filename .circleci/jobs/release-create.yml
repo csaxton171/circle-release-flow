@@ -22,19 +22,11 @@ steps:
   - run:
       name: bump version and document
       command: |
-        git branch
         git checkout ${RELEASE_BRANCH_NAME}
-        yarn release
+        yarn release \
+          --releaseCommitMessageFormat "chore(release): update changelog & bump version {{currentTag}}"
 
   - run:
       name: publish release
       command: |
         git push -u origin ${RELEASE_BRANCH_NAME}
-
-        echo ${RELEASE_BRANCH_NAME} > ./RELEASE_BRANCH_NAME
-        echo $(cat package.json | jq .version -r) > ./RELEASE_VERSION
-
-  - persist_to_workspace:
-      root: ./
-      paths:
-        - RELEASE_*

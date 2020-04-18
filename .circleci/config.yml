@@ -97,7 +97,33 @@ filter-master-only:
   filters:
     branches:
       only: master
+filter-release-only:
+  filters:
+    branches:
+      only: /^release\/.*$/
 jobs:
+  deploy-infrastructure:
+    executor: node
+    parameters:
+      environment:
+        type: string
+    steps:
+    - attach_workspace:
+        at: ./
+    - run:
+        command: echo "[simulation] deploying infrastructure..."
+        name: deploy infrastructure [<< parameters.environment >>]
+  deploy-system:
+    executor: node
+    parameters:
+      environment:
+        type: string
+    steps:
+    - attach_workspace:
+        at: ./
+    - run:
+        command: echo "[simulation] deploying system..."
+        name: deploy system [<< parameters.environment >>]
   node-setup:
     executor: node
     steps:
@@ -133,9 +159,6 @@ jobs:
     - run:
         command: yarn fmt:diff
         name: assert code formatting standards
-    - run:
-        command: yarn audit --level moderate
-        name: audit solution dependency security issues
   pre-release:
     executor: node
     steps:
@@ -165,21 +188,14 @@ jobs:
         name: establish release branch
     - run:
         command: |
-          git branch
           git checkout ${RELEASE_BRANCH_NAME}
-          yarn release
+          yarn release \
+            --releaseCommitMessageFormat "chore(release): update changelog & bump version {{currentTag}}"
         name: bump version and document
     - run:
         command: |
           git push -u origin ${RELEASE_BRANCH_NAME}
-
-          echo ${RELEASE_BRANCH_NAME} > ./RELEASE_BRANCH_NAME
-          echo $(cat package.json | jq .version -r) > ./RELEASE_VERSION
         name: publish release
-    - persist_to_workspace:
-        paths:
-        - RELEASE_*
-        root: ./
   release-promote:
     executor: node
     parameters:
@@ -190,10 +206,11 @@ jobs:
     - attach_workspace:
         at: ./
     - git-set-identity
+    - checkout
     - run:
         command: |
-          echo "export RELEASE_BRANCH_NAME=$(cat ./RELEASE_BRANCH_NAME)" >> $BASH_ENV
-          echo "export RELEASE_VERSION=$(cat ./RELEASE_VERSION)" >> $BASH_ENV
+          echo "export RELEASE_BRANCH_NAME=$CIRCLE_BRANCH" >> $BASH_ENV
+          echo "export RELEASE_VERSION=$(cat package.json | jq -r .version)" >> $BASH_ENV
         name: set release info
     - git-merge-branch:
         base_branch: develop
@@ -211,13 +228,14 @@ jobs:
         base_branch: master
         merge_branch: $RELEASE_BRANCH_NAME
     - run:
-        command: "git fetch --all \ngit checkout master\n\nif [[ -z $(git tag -l \"v${RELEASE_VERSION}\")
-          ]]; then\n  git tag \"v${RELEASE_VERSION}\"\n  git push --tags\nfi\n"
+        command: "git fetch --all \ngit checkout origin master\n\nif [[ -z $(git tag
+          -l \"v${RELEASE_VERSION}\") ]]; then\n  git tag \"v${RELEASE_VERSION}\"\n
+          \ git push --tags\nfi\n"
         name: tag release
     - run:
         command: |
           git branch -D "$RELEASE_BRANCH_NAME"
-          git push origin --delete "$RELEASE_BRANCH_NAME"
+          git push --delete "$RELEASE_BRANCH_NAME"
         name: remove release branch
   workaround-approval-skip-bug:
     executor: node
@@ -237,52 +255,69 @@ version: 2.1
 workflows:
   deploy-prod-workflow:
     jobs:
-    - hold:
+    - node-setup:
         filters:
           branches:
             only: master
+    - deploy-infrastructure:
+        environment: production
+        requires:
+        - node-setup
+    - deploy-system:
+        environment: production
+        requires:
+        - deploy-infrastructure
+  initiate-release-workflow:
+    jobs:
+    - node-setup:
+        filters:
+          branches:
+            only: /^release\/.*$/
+    - node-validate:
+        requires:
+        - node-setup
+    - node-test:
+        requires:
+        - node-setup
+    - deploy-infrastructure:
+        environment: staging
+        requires:
+        - node-validate
+        - node-test
+    - deploy-system:
+        environment: staging
+        requires:
+        - deploy-infrastructure
+    - hold-release-review:
+        requires:
+        - deploy-infrastructure
+        - deploy-system
         type: approval
-    - pre-release:
+    - release-promote:
         requires:
-        - hold
-    - node-setup:
-        requires:
-        - pre-release
-  deploy-staging-workflow:
+        - hold-release-review
+  offer-release-workflow:
     jobs:
-    - pre-release:
-        filters:
-          branches:
-            only: master
     - node-setup:
-        requires:
-        - pre-release
-  release-workflow:
-    jobs:
-    - workaround-approval-skip-bug:
         filters:
           branches:
             only: develop
     - hold-release:
         requires:
-        - workaround-approval-skip-bug
+        - node-setup
         type: approval
-    - node-setup:
-        requires:
-        - hold-release
     - release-create:
         requires:
-        - node-setup
-    - hold-release-review:
-        requires:
-        - release-create
-        type: approval
-    - release-promote:
-        requires:
-        - hold-release-review
+        - hold-release
   validate-branch-workflow:
     jobs:
-    - node-setup
+    - node-setup:
+        filters:
+          branches:
+            ignore:
+            - master
+            - develop
+            - /^release\/.*$/
     - node-validate:
         requires:
         - node-setup

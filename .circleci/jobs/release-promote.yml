@@ -10,11 +10,14 @@ steps:
 
   - git-set-identity
 
+  - checkout
+
   - run:
       name: set release info
+      # we *assume* this job is run from within the subject release branch
       command: |
-        echo "export RELEASE_BRANCH_NAME=$(cat ./RELEASE_BRANCH_NAME)" >> $BASH_ENV
-        echo "export RELEASE_VERSION=$(cat ./RELEASE_VERSION)" >> $BASH_ENV
+        echo "export RELEASE_BRANCH_NAME=$CIRCLE_BRANCH" >> $BASH_ENV
+        echo "export RELEASE_VERSION=$(cat package.json | jq -r .version)" >> $BASH_ENV
 
   - git-merge-branch:
       base_branch: "develop"
@@ -39,7 +42,7 @@ steps:
       name: tag release
       command: |
         git fetch --all 
-        git checkout master
+        git checkout origin master
 
         if [[ -z $(git tag -l "v${RELEASE_VERSION}") ]]; then
           git tag "v${RELEASE_VERSION}"
@@ -50,4 +53,4 @@ steps:
       name: remove release branch
       command: |
         git branch -D "$RELEASE_BRANCH_NAME"
-        git push origin --delete "$RELEASE_BRANCH_NAME"
+        git push --delete "$RELEASE_BRANCH_NAME"
