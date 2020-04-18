@@ -208,8 +208,8 @@ jobs:
     - git-set-identity
     - run:
         command: |
-          echo "export RELEASE_BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)" >> $BASH_ENV
-          echo "export RELEASE_VERSION=$(cat package.json | jq -r .version" >> $BASH_ENV
+          echo "export RELEASE_BRANCH_NAME=$CIRCLE_BRANCH" >> $BASH_ENV
+          echo "export RELEASE_VERSION=$(cat package.json | jq -r .version)" >> $BASH_ENV
         name: set release info
     - git-merge-branch:
         base_branch: develop
