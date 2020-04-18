@@ -41,16 +41,22 @@ steps:
   - run:
       name: tag release
       command: |
+        git branch
+        git remote -v 
+
         git fetch --all 
         git checkout origin master
+        echo "after master checkout $(git rev-parse --abbrev-ref HEAD)"
+
 
         if [[ -z $(git tag -l "v${RELEASE_VERSION}") ]]; then
+          echo "tagging release v${RELEASE_VERSION} ..."
           git tag "v${RELEASE_VERSION}"
-          git push origin master --tags
+          git push origin master --tags -m "[ci skip]"
         fi
 
   - run:
       name: remove release branch
       command: |
         git branch -D "$RELEASE_BRANCH_NAME"
-        git push origin master --delete "$RELEASE_BRANCH_NAME"
+        git push origin master --delete "$RELEASE_BRANCH_NAME" -m "[ci skip]"
