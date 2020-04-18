@@ -56,14 +56,14 @@ if [[ ! "$simulate" =~ (true|false) ]]; then
 	exit 4
 fi
 
-merge_msg="chore(release): merge $tag"
+merge_msg="chore(release): merge $tag to '$base_branch'"
 merge_args="--no-verify --no-ff"
 
 echo "merging '$merge_branch' into '$base_branch'"
-git checkout $base_branch && git pull
-git checkout $merge_branch && git pull
+git fetch --all
+git checkout origin $merge_branch && git pull
+git checkout origin $base_branch && git pull
 
-git checkout $base_branch
 case $trigger in
     false)  trigger_ci="[ci skip]" ;;
     *) 	    trigger_ci="" ;;
