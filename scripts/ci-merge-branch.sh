@@ -61,8 +61,8 @@ merge_args="--no-verify --no-ff"
 
 echo "merging '$merge_branch' into '$base_branch'"
 git fetch --all
-git checkout origin $merge_branch && git pull
-git checkout origin $base_branch && git pull
+git checkout $merge_branch && git pull
+git checkout $base_branch && git pull
 
 case $trigger in
     false)  trigger_ci="[ci skip]" ;;

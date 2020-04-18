@@ -51,4 +51,4 @@ steps:
       name: remove release branch
       command: |
         git branch -D "$RELEASE_BRANCH_NAME"
-        git push origin --delete "$RELEASE_BRANCH_NAME"
+        git push --delete "$RELEASE_BRANCH_NAME"
