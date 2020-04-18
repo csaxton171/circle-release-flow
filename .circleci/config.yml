@@ -100,7 +100,7 @@ filter-master-only:
 filter-release-only:
   filters:
     branches:
-      only: release/
+      only: release/.*
 jobs:
   deploy-infrastructure:
     executor: node
@@ -277,7 +277,7 @@ workflows:
     - node-setup:
         filters:
           branches:
-            only: release/
+            only: release/.*
     - node-validate:
         requires:
         - node-setup
@@ -322,7 +322,7 @@ workflows:
             ignore:
             - master
             - develop
-            - release/*
+            - release/.*
     - node-validate:
         requires:
         - node-setup
