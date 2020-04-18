@@ -13,8 +13,8 @@ steps:
   - run:
       name: set release info
       command: |
-        echo "export RELEASE_BRANCH_NAME=$(cat ./RELEASE_BRANCH_NAME)" >> $BASH_ENV
-        echo "export RELEASE_VERSION=$(cat ./RELEASE_VERSION)" >> $BASH_ENV
+        echo "export RELEASE_BRANCH_NAME=$(cat ./.RELEASE_BRANCH_NAME)" >> $BASH_ENV
+        echo "export RELEASE_VERSION=$(cat ./.RELEASE_VERSION)" >> $BASH_ENV
 
   - git-merge-branch:
       base_branch: "develop"
