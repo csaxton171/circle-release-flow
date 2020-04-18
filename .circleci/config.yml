@@ -179,7 +179,6 @@ jobs:
     steps:
     - attach_workspace:
         at: ./
-    - checkout
     - git-set-identity
     - run:
         command: |
@@ -304,20 +303,26 @@ workflows:
         - hold-release-review
   offer-release-workflow:
     jobs:
-    - workaround-approval-skip-bug:
+    - node-setup:
         filters:
           branches:
             only: develop
     - hold-release:
         requires:
-        - workaround-approval-skip-bug
+        - node-setup
         type: approval
     - release-create:
         requires:
         - hold-release
   validate-branch-workflow:
     jobs:
-    - node-setup
+    - node-setup:
+        filters:
+          branches:
+            ignore:
+            - master
+            - develop
+            - release/*
     - node-validate:
         requires:
         - node-setup

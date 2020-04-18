@@ -29,7 +29,13 @@ workflows:
 
   validate-branch-workflow:
     jobs:
-      - node-setup
+      - node-setup:
+          filters:
+            branches:
+              ignore:
+                - master
+                - develop
+                - release/*
 
       - node-validate:
           requires:
@@ -42,14 +48,15 @@ workflows:
   #  a release each time there is a merge to develop
   offer-release-workflow:
     jobs:
-      - workaround-approval-skip-bug:
+      - node-setup:
           <<: *filter-develop-only
 
       - hold-release:
           type: approval
           requires:
-            - workaround-approval-skip-bug
+            - node-setup
 
+      # requires yarn and git checkout
       - release-create:
           requires:
             - hold-release

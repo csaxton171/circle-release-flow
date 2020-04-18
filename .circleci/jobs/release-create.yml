@@ -11,8 +11,6 @@ steps:
   - attach_workspace:
       at: ./
 
-  - checkout
-
   - git-set-identity
 
   - run:
