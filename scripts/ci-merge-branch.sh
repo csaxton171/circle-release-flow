@@ -61,10 +61,6 @@ merge_args="--no-verify --no-ff"
 
 echo "merging '$merge_branch' into '$base_branch'"
 git fetch --all
-
-git branch
-git remote -v
-
 git checkout $merge_branch && git pull origin $merge_branch
 git checkout $base_branch && git pull origin $base_branch
 

@@ -46,11 +46,11 @@ steps:
 
         if [[ -z $(git tag -l "v${RELEASE_VERSION}") ]]; then
           git tag "v${RELEASE_VERSION}"
-          git push --tags
+          git push origin master --tags
         fi
 
   - run:
       name: remove release branch
       command: |
         git branch -D "$RELEASE_BRANCH_NAME"
-        git push --delete "$RELEASE_BRANCH_NAME"
+        git push origin master --delete "$RELEASE_BRANCH_NAME"
