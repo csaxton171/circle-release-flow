@@ -10,6 +10,8 @@ steps:
 
   - git-set-identity
 
+  - checkout
+
   - run:
       name: set release info
       # we *assume* this job is run from within the subject release branch

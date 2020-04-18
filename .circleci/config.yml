@@ -188,9 +188,9 @@ jobs:
         name: establish release branch
     - run:
         command: |
-          git branch
           git checkout ${RELEASE_BRANCH_NAME}
-          yarn release
+          yarn release \
+            --releaseCommitMessageFormat "chore(release): update changelog & bump version {{currentTag}}"
         name: bump version and document
     - run:
         command: |
@@ -206,6 +206,7 @@ jobs:
     - attach_workspace:
         at: ./
     - git-set-identity
+    - checkout
     - run:
         command: |
           echo "export RELEASE_BRANCH_NAME=$CIRCLE_BRANCH" >> $BASH_ENV
