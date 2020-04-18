@@ -14,6 +14,11 @@ filter-develop-only: &filter-develop-only
     branches:
       only: develop
 
+filter-release-only: &filter-release-only
+  filters:
+    branches:
+      only: release/
+
 filter-master-only: &filter-master-only
   filters:
     branches:
@@ -33,57 +38,67 @@ workflows:
       - node-test:
           requires:
             - node-setup
-
-  release-workflow:
+  #  we present the user with the offer to create
+  #  a release each time there is a merge to develop
+  offer-release-workflow:
     jobs:
       - workaround-approval-skip-bug:
-          filters:
-            branches:
-              only: develop
+          <<: *filter-develop-only
 
       - hold-release:
           type: approval
           requires:
             - workaround-approval-skip-bug
 
-      - node-setup:
+      - release-create:
           requires:
             - hold-release
 
-      - release-create:
+  initiate-release-workflow:
+    jobs:
+      - node-setup:
+          <<: *filter-release-only
+
+      - node-validate:
           requires:
             - node-setup
+
+      - node-test:
+          requires:
+            - node-setup
+
+      - deploy-infrastructure:
+          environment: staging
+          requires:
+            - node-validate
+            - node-test
+
+      - deploy-system:
+          environment: staging
+          requires:
+            - deploy-infrastructure
 
       - hold-release-review:
           type: approval
           requires:
-            - release-create
+            - deploy-infrastructure
+            - deploy-system
 
       - release-promote:
           requires:
             - hold-release-review
 
-  deploy-staging-workflow:
-    jobs:
-      - pre-release:
-          <<: *filter-master-only
-
-      - node-setup:
-          requires:
-            - pre-release
-
   deploy-prod-workflow:
     jobs:
-      - hold:
-          type: approval
+      - node-setup:
           <<: *filter-master-only
 
-      - pre-release:
-          # TODO uncomment context when ready to go live
-          # <<: *context-admin
+      - deploy-infrastructure:
+          environment: production
           requires:
-            - hold
+            - node-setup
 
-      - node-setup:
+      - deploy-system:
+          environment: production
           requires:
-            - pre-release
+            - deploy-infrastructure

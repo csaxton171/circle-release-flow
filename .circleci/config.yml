@@ -97,7 +97,33 @@ filter-master-only:
   filters:
     branches:
       only: master
+filter-release-only:
+  filters:
+    branches:
+      only: release/
 jobs:
+  deploy-infrastructure:
+    executor: node
+    parameters:
+      environment:
+        type: string
+    steps:
+    - attach_workspace:
+        at: ./
+    - run:
+        command: echo "[simulation] deploying infrastructure..."
+        name: deploy infrastructure [<< parameters.environment >>]
+  deploy-system:
+    executor: node
+    parameters:
+      environment:
+        type: string
+    steps:
+    - attach_workspace:
+        at: ./
+    - run:
+        command: echo "[simulation] deploying system..."
+        name: deploy system [<< parameters.environment >>]
   node-setup:
     executor: node
     steps:
@@ -133,9 +159,6 @@ jobs:
     - run:
         command: yarn fmt:diff
         name: assert code formatting standards
-    - run:
-        command: yarn audit --level moderate
-        name: audit solution dependency security issues
   pre-release:
     executor: node
     steps:
@@ -237,27 +260,48 @@ version: 2.1
 workflows:
   deploy-prod-workflow:
     jobs:
-    - hold:
+    - node-setup:
         filters:
           branches:
             only: master
-        type: approval
-    - pre-release:
+    - deploy-infrastructure:
+        environment: production
         requires:
-        - hold
-    - node-setup:
+        - node-setup
+    - deploy-system:
+        environment: production
         requires:
-        - pre-release
-  deploy-staging-workflow:
+        - deploy-infrastructure
+  initiate-release-workflow:
     jobs:
-    - pre-release:
+    - node-setup:
         filters:
           branches:
-            only: master
-    - node-setup:
+            only: release/
+    - node-validate:
         requires:
-        - pre-release
-  release-workflow:
+        - node-setup
+    - node-test:
+        requires:
+        - node-setup
+    - deploy-infrastructure:
+        environment: staging
+        requires:
+        - node-validate
+        - node-test
+    - deploy-system:
+        environment: staging
+        requires:
+        - deploy-infrastructure
+    - hold-release-review:
+        requires:
+        - deploy-infrastructure
+        - deploy-system
+        type: approval
+    - release-promote:
+        requires:
+        - hold-release-review
+  offer-release-workflow:
     jobs:
     - workaround-approval-skip-bug:
         filters:
@@ -267,19 +311,9 @@ workflows:
         requires:
         - workaround-approval-skip-bug
         type: approval
-    - node-setup:
-        requires:
-        - hold-release
     - release-create:
         requires:
-        - node-setup
-    - hold-release-review:
-        requires:
-        - release-create
-        type: approval
-    - release-promote:
-        requires:
-        - hold-release-review
+        - hold-release
   validate-branch-workflow:
     jobs:
     - node-setup

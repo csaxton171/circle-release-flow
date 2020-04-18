@@ -1,0 +1,10 @@
+executor: node
+parameters:
+  environment:
+    type: string
+steps:
+  - attach_workspace:
+      at: ./
+  - run:
+      name: deploy system [<< parameters.environment >>]
+      command: echo "[simulation] deploying system..."
