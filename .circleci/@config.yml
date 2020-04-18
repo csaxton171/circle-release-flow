@@ -17,7 +17,7 @@ filter-develop-only: &filter-develop-only
 filter-release-only: &filter-release-only
   filters:
     branches:
-      only: release/.*
+      only: /^release\/.*$/
 
 filter-master-only: &filter-master-only
   filters:
@@ -35,7 +35,7 @@ workflows:
               ignore:
                 - master
                 - develop
-                - release/.*
+                - /^release\/.*$/
 
       - node-validate:
           requires:
