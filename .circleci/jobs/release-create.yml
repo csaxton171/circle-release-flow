@@ -22,9 +22,9 @@ steps:
   - run:
       name: bump version and document
       command: |
-        git branch
         git checkout ${RELEASE_BRANCH_NAME}
-        yarn release
+        yarn release \
+          --releaseCommitMessageFormat "chore(release): update changelog & bump version {{currentTag}}"
 
   - run:
       name: publish release
