@@ -191,18 +191,14 @@ jobs:
           git branch
           git checkout ${RELEASE_BRANCH_NAME}
           yarn release
+          echo ${RELEASE_BRANCH_NAME} > ./.RELEASE_BRANCH_NAME
+          echo $(cat package.json | jq .version -r) > ./.RELEASE_VERSION
+          git add -A && git commit -a --amend --no-edit
         name: bump version and document
     - run:
         command: |
           git push -u origin ${RELEASE_BRANCH_NAME}
-
-          echo ${RELEASE_BRANCH_NAME} > ./RELEASE_BRANCH_NAME
-          echo $(cat package.json | jq .version -r) > ./RELEASE_VERSION
         name: publish release
-    - persist_to_workspace:
-        paths:
-        - RELEASE_*
-        root: ./
   release-promote:
     executor: node
     parameters:
@@ -215,8 +211,8 @@ jobs:
     - git-set-identity
     - run:
         command: |
-          echo "export RELEASE_BRANCH_NAME=$(cat ./RELEASE_BRANCH_NAME)" >> $BASH_ENV
-          echo "export RELEASE_VERSION=$(cat ./RELEASE_VERSION)" >> $BASH_ENV
+          echo "export RELEASE_BRANCH_NAME=$(cat ./.RELEASE_BRANCH_NAME)" >> $BASH_ENV
+          echo "export RELEASE_VERSION=$(cat ./.RELEASE_VERSION)" >> $BASH_ENV
         name: set release info
     - git-merge-branch:
         base_branch: develop

@@ -25,16 +25,11 @@ steps:
         git branch
         git checkout ${RELEASE_BRANCH_NAME}
         yarn release
+        echo ${RELEASE_BRANCH_NAME} > ./.RELEASE_BRANCH_NAME
+        echo $(cat package.json | jq .version -r) > ./.RELEASE_VERSION
+        git add -A && git commit -a --amend --no-edit
 
   - run:
       name: publish release
       command: |
         git push -u origin ${RELEASE_BRANCH_NAME}
-
-        echo ${RELEASE_BRANCH_NAME} > ./RELEASE_BRANCH_NAME
-        echo $(cat package.json | jq .version -r) > ./RELEASE_VERSION
-
-  - persist_to_workspace:
-      root: ./
-      paths:
-        - RELEASE_*
