@@ -234,7 +234,7 @@ jobs:
     - run:
         command: |
           git branch -D "$RELEASE_BRANCH_NAME"
-          git push origin --delete "$RELEASE_BRANCH_NAME"
+          git push --delete "$RELEASE_BRANCH_NAME"
         name: remove release branch
   workaround-approval-skip-bug:
     executor: node
