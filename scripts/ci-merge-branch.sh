@@ -65,8 +65,8 @@ git fetch --all
 git branch
 git remote -v
 
-git checkout $merge_branch && git pull
-git checkout $base_branch && git pull
+git checkout $merge_branch && git pull origin $merge_branch
+git checkout $base_branch && git pull origin $base_branch
 
 case $trigger in
     false)  trigger_ci="[ci skip]" ;;
