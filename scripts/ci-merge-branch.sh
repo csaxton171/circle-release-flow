@@ -60,12 +60,13 @@ merge_msg="merge $tag to '$base_branch'"
 if [[ "$simulate" == "true" ]]; then
     merge_msg="[simulated] $merge_msg"
 fi
-merge_args="--no-verify --no-ff"
+merge_args="--no-ff --no-verify"
 
 echo "merging '$merge_branch' into '$base_branch'"
 git fetch --all
-git checkout $merge_branch && git pull origin $merge_branch
-git checkout $base_branch && git pull origin $base_branch
+# ensure we are dealing with clean copies
+git checkout $merge_branch && git reset --hard
+git checkout $base_branch && git reset --hard
 
 trigger_ci=$([[ "$trigger" == "false" ]] && echo "[skip ci]" || echo "")
 merge_args=$([[ "$simulate" == "true" ]] && echo "--no-commit $merge_args" || echo "$merge_args" )
