@@ -233,8 +233,9 @@ jobs:
           \"v${RELEASE_VERSION}\"\n  git push --tags\nfi\n"
         name: tag release
     - run:
-        command: "git fetch --all \n\ngit remote -v \ngit branch -r \n\ngit branch
-          -D \"$RELEASE_BRANCH_NAME\"\ngit push origin master --delete \"$RELEASE_BRANCH_NAME\n"
+        command: "git fetch --all \necho \"deleting release branch '$RELEASE_BRANCH_NAME'
+          ...\"\ngit branch -D \"$RELEASE_BRANCH_NAME\"\ngit push origin master --delete
+          \"$RELEASE_BRANCH_NAME\"\n"
         name: remove release branch
   workaround-approval-skip-bug:
     executor: node
