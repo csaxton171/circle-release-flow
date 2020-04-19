@@ -13,6 +13,7 @@ merge_branch=""
 tag=""
 trigger="true"
 simulate="false"
+merge_args=""
 
 for i in "$@"
 do
@@ -60,20 +61,19 @@ merge_msg="merge $tag to '$base_branch'"
 if [[ "$simulate" == "true" ]]; then
     merge_msg="[simulated] $merge_msg"
 fi
-merge_args="--no-ff --no-verify"
 
 echo "merging '$merge_branch' into '$base_branch'"
 git fetch --all
 git fetch --tags
 # ensure we are dealing with clean copies
-git checkout $merge_branch && git reset --hard
-git checkout $base_branch && git reset --hard
+git checkout $merge_branch && git pull origin $merge_branch --tags
+git checkout $base_branch && git pull origin $base_branch --tags
 
 trigger_ci=$([[ "$trigger" == "false" ]] && echo "[skip ci]" || echo "")
 merge_args=$([[ "$simulate" == "true" ]] && echo "--no-commit $merge_args" || echo "$merge_args" )
 
-echo "merging - [git merge $merge_args -m \"chore(release): $merge_msg\" -m \"$trigger_ci\" $merge_branch]"     
-result=$(git merge $merge_args -m "chore(release): $merge_msg" -m "$trigger_ci" $merge_branch || echo "[merge-failed]")        
+echo "merging - [git merge --no-ff --no-verify $merge_args -m \"chore(release): $merge_msg\" -m \"$trigger_ci\" $merge_branch]"     
+result=$(git merge --no-ff --no-verify $merge_args -m "chore(release): $merge_msg" -m "$trigger_ci" $merge_branch || echo "[merge-failed]")        
 echo "$result"
 
 if [[ "$result" =~ \[merge-failed\] ]]; then
