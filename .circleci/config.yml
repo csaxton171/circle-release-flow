@@ -228,9 +228,9 @@ jobs:
         base_branch: master
         merge_branch: $RELEASE_BRANCH_NAME
     - run:
-        command: "git fetch --all \n\nif [[ -z $(git tag -l \"v${RELEASE_VERSION}\")
-          ]]; then\n  echo \"tagging release v${RELEASE_VERSION} ...\"\n  git tag
-          \"v${RELEASE_VERSION}\"\n  git push --tags\nfi\n"
+        command: "git fetch --all \n\nif [[ -z $(git tag -l \"${RELEASE_VERSION}\")
+          ]]; then\n  echo \"tagging release ${RELEASE_VERSION} ...\"\n  git tag \"${RELEASE_VERSION}\"\n
+          \ git push --tags\nfi\n"
         name: tag release
     - run:
         command: "git fetch --all \necho \"deleting release branch '$RELEASE_BRANCH_NAME'
