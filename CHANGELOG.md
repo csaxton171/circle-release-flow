@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 1.25.0 (2020-04-19)
+
+
+### Features
+
+* add yet more things ([#55](https://github.com/csaxton171/circle-release-flow/issues/55)) ([3b9805b](https://github.com/csaxton171/circle-release-flow/commit/3b9805b13cc803c1d362bb6bf6a96f2d2f97df47))
+* refactor woozles ([#54](https://github.com/csaxton171/circle-release-flow/issues/54)) ([c92566f](https://github.com/csaxton171/circle-release-flow/commit/c92566f3b6d50dff811804b1b146915b0eb23e37))
+* **ci:** add merge test to release workflow ([#11](https://github.com/csaxton171/circle-release-flow/issues/11)) ([94a3932](https://github.com/csaxton171/circle-release-flow/commit/94a3932e2e67d6406316c8ad61f5238086f73ded))
+* add doMoreThings ([#3](https://github.com/csaxton171/circle-release-flow/issues/3)) ([bf6f3a9](https://github.com/csaxton171/circle-release-flow/commit/bf6f3a98a0c0d3df1e7e94326746fd3460745402))
+* enhance ci merge commit message ([#5](https://github.com/csaxton171/circle-release-flow/issues/5)) ([cc9c9ff](https://github.com/csaxton171/circle-release-flow/commit/cc9c9ffe614bb52f3377974fedf42354eda38663))
+
+
+### Bug Fixes
+
+* validation error on CHANGELOG.md update ([#4](https://github.com/csaxton171/circle-release-flow/issues/4)) ([b645dbb](https://github.com/csaxton171/circle-release-flow/commit/b645dbb273148889ab842a1133bd67a950bd47ea))
+
 ## 1.24.0 (2020-04-19)
 
 
