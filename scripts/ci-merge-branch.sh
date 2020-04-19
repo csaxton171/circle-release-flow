@@ -76,7 +76,7 @@ if [[ "$result" =~ \[merge-failed\] ]]; then
     exit 1
 fi
 
-if [[ "$simulate" == "true" ]]; then
+if [[ "$simulate" == "false" ]]; then
     echo "pushing merge to '$base_branch' ..."
     git push origin $base_branch
 fi
