@@ -56,7 +56,10 @@ if [[ ! "$simulate" =~ (true|false) ]]; then
 	exit 4
 fi
 
-merge_msg="chore(release): merge $tag to '$base_branch'"
+merge_msg="merge $tag to '$base_branch'"
+if [[ "$simulate" == "true" ]]; then
+    merge_msg="[simulated] $merge_msg"
+fi
 merge_args="--no-verify --no-ff"
 
 echo "merging '$merge_branch' into '$base_branch'"
@@ -67,10 +70,10 @@ git checkout $base_branch && git pull origin $base_branch
 trigger_ci=$([[ "$trigger" == "false" ]] && echo "[skip ci]" || echo "")
 merge_args=$([[ "$simulate" == "true" ]] && echo "--no-commit $merge_args" || echo "$merge_args" )
 
-echo "merging - [git merge $merge_args -m \"$merge_msg\" -m \"$trigger_ci\" $merge_branch]"     
-result=$(git merge $merge_args -m "$merge_msg" -m "$trigger_ci" $merge_branch || echo "[merge-failed]")        
+echo "merging - [git merge $merge_args -m \"chore(release): $merge_msg\" -m \"$trigger_ci\" $merge_branch]"     
+result=$(git merge $merge_args -m "chore(release): $merge_msg" -m "$trigger_ci" $merge_branch || echo "[merge-failed]")        
 if [[ "$result" =~ \[merge-failed\] ]]; then
-    echo $result
+    echo "merge failed with: '$result'"
     git status
     git reset --hard
     exit 1
