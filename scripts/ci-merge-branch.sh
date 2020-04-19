@@ -64,6 +64,7 @@ merge_args="--no-ff --no-verify"
 
 echo "merging '$merge_branch' into '$base_branch'"
 git fetch --all
+git fetch --tags
 # ensure we are dealing with clean copies
 git checkout $merge_branch && git reset --hard
 git checkout $base_branch && git reset --hard
