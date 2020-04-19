@@ -1,6 +1,6 @@
 {
   "name": "circle-release-flow",
-  "version": "1.23.0",
+  "version": "1.24.0",
   "main": "index.js",
   "repository": "git@github.com:csaxton171/circle-release-flow.git",
   "author": "Craig Saxton <craig.saxton@news.co.uk>",

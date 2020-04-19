@@ -1,4 +1,4 @@
-import { doTheThings, doMoreThings } from "../src/firsties";
+import { doTheThings, doMoreThings, yetMoreThings } from "../src/firsties";
 
 describe("firsties", () => {
   it.each`
@@ -19,4 +19,8 @@ describe("firsties", () => {
       expect(doMoreThings(thingsCount)).toBe(expected);
     }
   );
+
+  it("should do yet more things!", () => {
+    expect(yetMoreThings()).toBe("amazing");
+  });
 });
