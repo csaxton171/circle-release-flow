@@ -72,8 +72,10 @@ merge_args=$([[ "$simulate" == "true" ]] && echo "--no-commit $merge_args" || ec
 
 echo "merging - [git merge $merge_args -m \"chore(release): $merge_msg\" -m \"$trigger_ci\" $merge_branch]"     
 result=$(git merge $merge_args -m "chore(release): $merge_msg" -m "$trigger_ci" $merge_branch || echo "[merge-failed]")        
+echo "$result"
+
 if [[ "$result" =~ \[merge-failed\] ]]; then
-    echo "merge failed with: '$result'"
+    echo "merge failed with - resetting & terminating ..."
     git status
     git reset --hard
     exit 1
