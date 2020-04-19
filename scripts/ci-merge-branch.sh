@@ -56,7 +56,7 @@ if [[ ! "$simulate" =~ (true|false) ]]; then
 	exit 4
 fi
 
-merge_msg="chore(release): merge $tag to '$base_branch'"
+merge_msg="chore(release): $([[ $simulate == 'true' ]] && echo '[simulated] ')merge $tag to '$base_branch'"
 merge_args="--no-verify --no-ff"
 
 echo "merging '$merge_branch' into '$base_branch'"
