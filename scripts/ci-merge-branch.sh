@@ -71,7 +71,7 @@ trigger_ci=$([[ "$trigger" == "false" ]] && echo "[skip ci]" || echo "")
 merge_args=$([[ "$simulate" == "true" ]] && echo "--no-commit $merge_args" || echo "$merge_args" )
 
 echo "BEFORE: after merge..."
-git log -n 8
+git log -n 4
 
 echo "merging - [git merge $merge_args -m \"chore(release): $merge_msg\" -m \"$trigger_ci\" $merge_branch]"     
 result=$(git merge $merge_args -m "chore(release): $merge_msg" -m "$trigger_ci" $merge_branch || echo "[merge-failed]")        
@@ -83,7 +83,7 @@ if [[ "$result" =~ \[merge-failed\] ]]; then
 fi
 
 echo "DEBUG: after merge..."
-git log -n 8
+git log -n 4
 
 if [[ "$simulate" == "false" ]]; then
     echo "pushing merge to '$base_branch' ..."
