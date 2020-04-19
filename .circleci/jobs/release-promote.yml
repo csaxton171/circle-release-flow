@@ -43,9 +43,9 @@ steps:
       command: |
         git fetch --all 
 
-        if [[ -z $(git tag -l "v${RELEASE_VERSION}") ]]; then
-          echo "tagging release v${RELEASE_VERSION} ..."
-          git tag "v${RELEASE_VERSION}"
+        if [[ -z $(git tag -l "${RELEASE_VERSION}") ]]; then
+          echo "tagging release ${RELEASE_VERSION} ..."
+          git tag "${RELEASE_VERSION}"
           git push --tags
         fi
 
