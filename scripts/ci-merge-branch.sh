@@ -11,8 +11,8 @@ usage="USAGE: ./ci-merge-branch.sh --base=<branch-receiving-merge> --merge=<bran
 base_branch=""
 merge_branch=""
 tag=""
-trigger=true
-simulate=false
+trigger="true"
+simulate="false"
 
 for i in "$@"
 do
@@ -64,13 +64,8 @@ git fetch --all
 git checkout $merge_branch && git pull origin $merge_branch
 git checkout $base_branch && git pull origin $base_branch
 
-case $trigger in
-    false)  trigger_ci="[ci skip]" ;;
-    *) 	    trigger_ci="" ;;
-esac
-case $simulate in
-    true) merge_args="--no-commit $merge_args" ;;
-esac
+trigger_ci=$([ "$trigger" == "false" ] && echo "[ci skip]" || echo "")
+merge_args=$([ "$simulate" == "true" ] && echo "--no-commit $merge_args" || echo "" )
 
 echo "merging - [git merge $merge_args -m \"$merge_msg\" -m \"$trigger_ci\" $merge_branch]"     
 result=$(git merge $merge_args -m "$merge_msg" -m "$trigger_ci" $merge_branch || echo "[merge-failed]")        

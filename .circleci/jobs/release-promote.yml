@@ -44,15 +44,14 @@ steps:
         git branch
         git remote -v 
 
-        git fetch --all 
-        git checkout origin master
-        echo "after master checkout $(git rev-parse --abbrev-ref HEAD)"
+        git branch -r
 
+        git fetch --all 
 
         if [[ -z $(git tag -l "v${RELEASE_VERSION}") ]]; then
           echo "tagging release v${RELEASE_VERSION} ..."
           git tag "v${RELEASE_VERSION}"
-          git push origin master --tags -m "[ci skip]"
+          git push --tags
         fi
 
   - run:
