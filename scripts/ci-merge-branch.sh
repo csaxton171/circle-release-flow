@@ -65,8 +65,7 @@ git checkout $merge_branch && git pull origin $merge_branch
 git checkout $base_branch && git pull origin $base_branch
 
 trigger_ci=$([[ "$trigger" == "false" ]] && echo "[ci skip]" || echo "")
-merge_args=$([[ "$simulate" == "true" ]] && echo "--no-commit $merge_args" || echo "" )
-
+merge_args=$([[ "$simulate" == "true" ]] && echo "--no-commit $merge_args" || echo "$merge_args" )
 echo "merging - [git merge $merge_args -m \"$merge_msg\" -m \"$trigger_ci\" $merge_branch]"     
 result=$(git merge $merge_args -m "$merge_msg" -m "$trigger_ci" $merge_branch || echo "[merge-failed]")        
 if [[ "$result" =~ \[merge-failed\] ]]; then
