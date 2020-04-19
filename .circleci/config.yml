@@ -228,14 +228,16 @@ jobs:
         base_branch: master
         merge_branch: $RELEASE_BRANCH_NAME
     - run:
-        command: "git fetch --all \ngit checkout origin master\n\nif [[ -z $(git tag
-          -l \"v${RELEASE_VERSION}\") ]]; then\n  git tag \"v${RELEASE_VERSION}\"\n
-          \ git push origin master --tags\nfi\n"
+        command: "git branch\ngit remote -v \n\ngit fetch --all \ngit checkout origin
+          master\necho \"after master checkout $(git rev-parse --abbrev-ref HEAD)\"\n\n\nif
+          [[ -z $(git tag -l \"v${RELEASE_VERSION}\") ]]; then\n  echo \"tagging release
+          v${RELEASE_VERSION} ...\"\n  git tag \"v${RELEASE_VERSION}\"\n  git push
+          origin master --tags -m \"[ci skip]\"\nfi\n"
         name: tag release
     - run:
         command: |
           git branch -D "$RELEASE_BRANCH_NAME"
-          git push origin master --delete "$RELEASE_BRANCH_NAME"
+          git push origin master --delete "$RELEASE_BRANCH_NAME" -m "[ci skip]"
         name: remove release branch
   workaround-approval-skip-bug:
     executor: node
