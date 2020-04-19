@@ -41,11 +41,6 @@ steps:
   - run:
       name: tag release
       command: |
-        git branch
-        git remote -v 
-
-        git branch -r
-
         git fetch --all 
 
         if [[ -z $(git tag -l "v${RELEASE_VERSION}") ]]; then
@@ -57,5 +52,10 @@ steps:
   - run:
       name: remove release branch
       command: |
+        git fetch --all 
+
+        git remote -v 
+        git branch -r 
+
         git branch -D "$RELEASE_BRANCH_NAME"
-        git push origin master --delete "$RELEASE_BRANCH_NAME" -m "[ci skip]"
+        git push origin master --delete "$RELEASE_BRANCH_NAME
