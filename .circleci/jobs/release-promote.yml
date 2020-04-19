@@ -53,9 +53,6 @@ steps:
       name: remove release branch
       command: |
         git fetch --all 
-
-        git remote -v 
-        git branch -r 
-
+        echo "deleting release branch '$RELEASE_BRANCH_NAME' ..."
         git branch -D "$RELEASE_BRANCH_NAME"
-        git push origin master --delete "$RELEASE_BRANCH_NAME
+        git push origin master --delete "$RELEASE_BRANCH_NAME"
