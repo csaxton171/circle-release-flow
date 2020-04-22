@@ -24,6 +24,11 @@ filter-master-only: &filter-master-only
     branches:
       only: master
 
+filter-version-tag-only: &filter-version-tag-only
+  filters:
+    tags:
+      only: /^v(\d)+\.(\d)+\.(\d)+$/
+
 workflows:
   version: 2.1
 
@@ -95,21 +100,19 @@ workflows:
           requires:
             - hold-release-review
 
-  deploy-prod-workflow:
+  production-commit-workflow:
     jobs:
       - node-setup:
-          filters:
-            tags:
-              only: /^v(\d)+\.(\d)+\.(\d)+$/
-            branches:
-              only: master
+          <<: *filter-master-only
 
       - deploy-infrastructure:
           environment: production
+          <<: *filter-version-tag-only
           requires:
             - node-setup
 
       - deploy-system:
           environment: production
+          <<: *filter-version-tag-only
           requires:
             - deploy-infrastructure
