@@ -101,6 +101,10 @@ filter-release-only:
   filters:
     branches:
       only: /^release\/.*$/
+filter-version-tag-only:
+  filters:
+    tags:
+      only: /^v(\d)+\.(\d)+\.(\d)+$/
 jobs:
   deploy-infrastructure:
     executor: node
@@ -251,22 +255,6 @@ parameters:
     type: string
 version: 2.1
 workflows:
-  deploy-prod-workflow:
-    jobs:
-    - node-setup:
-        filters:
-          branches:
-            only: master
-          tags:
-            only: /^v(\d)+\.(\d)+\.(\d)+$/
-    - deploy-infrastructure:
-        environment: production
-        requires:
-        - node-setup
-    - deploy-system:
-        environment: production
-        requires:
-        - deploy-infrastructure
   initiate-release-workflow:
     jobs:
     - node-setup:
@@ -309,6 +297,26 @@ workflows:
     - release-create:
         requires:
         - hold-release
+  production-commit-workflow:
+    jobs:
+    - node-setup:
+        filters:
+          branches:
+            only: master
+    - deploy-infrastructure:
+        environment: production
+        filters:
+          tags:
+            only: /^v(\d)+\.(\d)+\.(\d)+$/
+        requires:
+        - node-setup
+    - deploy-system:
+        environment: production
+        filters:
+          tags:
+            only: /^v(\d)+\.(\d)+\.(\d)+$/
+        requires:
+        - deploy-infrastructure
   validate-branch-workflow:
     jobs:
     - node-setup:
