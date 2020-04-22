@@ -255,6 +255,22 @@ parameters:
     type: string
 version: 2.1
 workflows:
+  deploy-production-workflow:
+    jobs:
+    - node-setup:
+        filters:
+          branches:
+            ignore: /.*/
+          tags:
+            only: /^v[0-9]+(\.[0-9]+)+$/
+    - deploy-infrastructure:
+        environment: production
+        requires:
+        - node-setup
+    - deploy-system:
+        environment: production
+        requires:
+        - deploy-infrastructure
   initiate-release-workflow:
     jobs:
     - node-setup:
@@ -297,26 +313,6 @@ workflows:
     - release-create:
         requires:
         - hold-release
-  production-commit-workflow:
-    jobs:
-    - node-setup:
-        filters:
-          branches:
-            only: master
-    - deploy-infrastructure:
-        environment: production
-        filters:
-          tags:
-            only: /^v(\d)+\.(\d)+\.(\d)+$/
-        requires:
-        - node-setup
-    - deploy-system:
-        environment: production
-        filters:
-          tags:
-            only: /^v(\d)+\.(\d)+\.(\d)+$/
-        requires:
-        - deploy-infrastructure
   validate-branch-workflow:
     jobs:
     - node-setup:
