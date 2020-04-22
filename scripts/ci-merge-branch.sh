@@ -64,10 +64,11 @@ fi
 
 echo "merging '$merge_branch' into '$base_branch'"
 git fetch --all
-git fetch --tags
 # ensure we are dealing with clean copies
-git checkout $merge_branch && git pull origin $merge_branch --tags
-git checkout $base_branch && git pull origin $base_branch --tags
+
+git reset --hard && git clean -fd # clear any dirty state
+git checkout $merge_branch 
+git checkout $base_branch
 
 trigger_ci=$([[ "$trigger" == "false" ]] && echo "[skip ci]" || echo "")
 merge_args=$([[ "$simulate" == "true" ]] && echo "--no-commit $merge_args" || echo "$merge_args" )
