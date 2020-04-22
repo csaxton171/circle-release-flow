@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.28.0](https://github.com/csaxton171/circle-release-flow/compare/v1.27.1...v1.28.0) (2020-04-22)
+
+
+### Features
+
+* some feature ([#62](https://github.com/csaxton171/circle-release-flow/issues/62)) ([541127d](https://github.com/csaxton171/circle-release-flow/commit/541127d408650c7f41e8ff18043c4ad384e9c95b))
+
+
+### Bug Fixes
+
+* merge test cleanup ([#64](https://github.com/csaxton171/circle-release-flow/issues/64)) ([53004ae](https://github.com/csaxton171/circle-release-flow/commit/53004ae77de6ec65cca3a51ba0bba421cd445106))
+* resolve minimist warning ([#61](https://github.com/csaxton171/circle-release-flow/issues/61)) ([5684a7a](https://github.com/csaxton171/circle-release-flow/commit/5684a7ad4bb27ee90bbb3af60f2c295f7265b478))
+
 ### [1.27.1](https://github.com/csaxton171/circle-release-flow/compare/v1.26.0...v1.27.1) (2020-04-22)
 
 ## 1.27.0 (2020-04-19)
