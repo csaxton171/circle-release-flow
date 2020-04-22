@@ -255,8 +255,10 @@ workflows:
     jobs:
     - node-setup:
         filters:
+          branches:
+            only: master
           tags:
-            only: /^v\d+\.\d+\.\d+$/
+            only: /^v(\d)+\.(\d)+\.(\d)+$/
     - deploy-infrastructure:
         environment: production
         requires:

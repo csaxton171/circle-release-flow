@@ -100,7 +100,9 @@ workflows:
       - node-setup:
           filters:
             tags:
-              only: /^v\d+\.\d+\.\d+$/
+              only: /^v(\d)+\.(\d)+\.(\d)+$/
+            branches:
+              only: master
 
       - deploy-infrastructure:
           environment: production
