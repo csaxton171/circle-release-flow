@@ -1,4 +1,9 @@
-import { doTheThings, doMoreThings, yetMoreThings } from "../src/firsties";
+import {
+  doTheThings,
+  doMoreThings,
+  yetMoreThings,
+  someFeature
+} from "../src/firsties";
 
 describe("firsties", () => {
   it.each`
@@ -22,5 +27,8 @@ describe("firsties", () => {
 
   it("should do yet more things!", () => {
     expect(yetMoreThings()).toBe("amazing");
+  });
+  it("should have someFeature", () => {
+    expect(someFeature()).toBe("someFeature");
   });
 });
