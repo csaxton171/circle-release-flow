@@ -185,15 +185,8 @@ jobs:
           release_name=$([[ -z "<< parameters.release_name >>" ]] && echo "release/$(date +%Y.%m.%d.%H%M)" || echo "release/<< parameters.release_name >>")
           echo "export RELEASE_BRANCH_NAME=$release_name" >> $BASH_ENV
           git fetch --all
-          git fetch --tags
           git checkout -B "$release_name" "<< parameters.source_branch >>"
         name: establish release branch
-    - run:
-        command: |
-          git checkout ${RELEASE_BRANCH_NAME}
-          yarn release \
-            --releaseCommitMessageFormat "chore(release): update changelog & bump version {{currentTag}}"
-        name: bump version and document
     - run:
         command: |
           git push -u origin ${RELEASE_BRANCH_NAME}
@@ -212,7 +205,6 @@ jobs:
     - run:
         command: |
           echo "export RELEASE_BRANCH_NAME=$CIRCLE_BRANCH" >> $BASH_ENV
-          echo "export RELEASE_VERSION=$(cat package.json | jq -r .version)" >> $BASH_ENV
         name: set release info
     - git-merge-branch:
         base_branch: develop
@@ -230,10 +222,14 @@ jobs:
         base_branch: master
         merge_branch: $RELEASE_BRANCH_NAME
     - run:
-        command: "git fetch --all \n\nif [[ -z $(git tag -l \"${RELEASE_VERSION}\")
-          ]]; then\n  echo \"tagging release ${RELEASE_VERSION} ...\"\n  git tag \"${RELEASE_VERSION}\"\n
-          \ git push --tags\nfi\n"
-        name: tag release
+        command: |
+          git checkout master && git pull
+
+          yarn release \
+            --releaseCommitMessageFormat "chore(release): update changelog & bump version {{currentTag}}"
+
+          git push --follow-tags origin master
+        name: bump version and document
     - run:
         command: "git fetch --all \necho \"deleting release branch '$RELEASE_BRANCH_NAME'
           ...\"\ngit branch -D \"$RELEASE_BRANCH_NAME\"\ngit push origin --delete
@@ -259,8 +255,8 @@ workflows:
     jobs:
     - node-setup:
         filters:
-          branches:
-            only: master
+          tags:
+            only: /^v\d+\.\d+\.\d+$/
     - deploy-infrastructure:
         environment: production
         requires:

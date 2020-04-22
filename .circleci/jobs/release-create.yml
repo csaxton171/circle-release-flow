@@ -19,14 +19,7 @@ steps:
         release_name=$([[ -z "<< parameters.release_name >>" ]] && echo "release/$(date +%Y.%m.%d.%H%M)" || echo "release/<< parameters.release_name >>")
         echo "export RELEASE_BRANCH_NAME=$release_name" >> $BASH_ENV
         git fetch --all
-        git fetch --tags
         git checkout -B "$release_name" "<< parameters.source_branch >>"
-  - run:
-      name: bump version and document
-      command: |
-        git checkout ${RELEASE_BRANCH_NAME}
-        yarn release \
-          --releaseCommitMessageFormat "chore(release): update changelog & bump version {{currentTag}}"
 
   - run:
       name: publish release

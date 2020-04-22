@@ -98,7 +98,9 @@ workflows:
   deploy-prod-workflow:
     jobs:
       - node-setup:
-          <<: *filter-master-only
+          filters:
+            tags:
+              only: /^v\d+\.\d+\.\d+$/
 
       - deploy-infrastructure:
           environment: production
