@@ -6,3 +6,5 @@ export const doMoreThings = (thingsCount: number) => {
 };
 
 export const yetMoreThings = () => "amazing";
+
+export const someFeature = () => "someFeature";
