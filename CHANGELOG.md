@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.29.0](https://github.com/csaxton171/circle-release-flow/compare/v1.28.2...v1.29.0) (2020-06-30)
+
+
+### Features
+
+* add support for even more things ([#69](https://github.com/csaxton171/circle-release-flow/issues/69)) ([89bed09](https://github.com/csaxton171/circle-release-flow/commit/89bed09769ef3fd17ea84686541e00f2728edc44))
+* **plumbus:** add basic plumbus support ([#68](https://github.com/csaxton171/circle-release-flow/issues/68)) ([b87de63](https://github.com/csaxton171/circle-release-flow/commit/b87de635fd0e25d127945a102a042eebe0a6617f))
+
 ### [1.28.2](https://github.com/csaxton171/circle-release-flow/compare/v1.28.1...v1.28.2) (2020-04-22)
 
 ### [1.28.1](https://github.com/csaxton171/circle-release-flow/compare/v1.28.0...v1.28.1) (2020-04-22)
